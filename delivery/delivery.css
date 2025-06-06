@@ -2,12 +2,17 @@
     max-width: 800px;
     margin: 40px auto;
     padding: 30px;
-    background: #1a1a1a;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
-.status-container {
+.page-title {
+    text-align: center;
+    font-size: 2.4rem;
+    margin-bottom: 30px;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.delivery-status-card {
     background: #272727;
     border-radius: 16px;
     padding: 25px;
@@ -15,7 +20,7 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
 }
 
-.info-box {
+#status-info {
     font-size: 1.4rem;
     font-weight: 600;
     color: #ffffff;
@@ -30,21 +35,23 @@
 
 #timer-info {
     font-size: 1.2rem;
+    color: #ffffff;
+    margin-bottom: 20px;
     opacity: 0.9;
+    padding: 10px 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.order-details, .contact-info {
-    background: #272727;
-    border-radius: 16px;
-    padding: 25px;
-    margin-bottom: 30px;
-}
-
-h2 {
-    color: #d4a373;
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-    font-weight: 600;
+#order-info {
+    color: #ffffff;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
 }
 
 #order-info ul {
@@ -59,7 +66,6 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #ffffff;
 }
 
 #order-info li:last-child {
@@ -68,6 +74,10 @@ h2 {
 
 #contact-info {
     color: #ffffff;
+    padding: 15px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    margin-top: 20px;
 }
 
 #contact-info div {
@@ -80,6 +90,16 @@ h2 {
 #contact-info i {
     color: #d4a373;
     width: 20px;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    color: #d4a373;
+    margin: 25px 0 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .status-badge {
@@ -104,11 +124,16 @@ h2 {
         padding: 20px;
     }
 
-    .status-container, .order-details, .contact-info {
+    .page-title {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .delivery-status-card {
         padding: 20px;
     }
 
-    .info-box {
+    #status-info {
         font-size: 1.2rem;
     }
 }

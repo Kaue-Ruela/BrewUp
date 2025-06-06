@@ -60,23 +60,18 @@ function renderTimer(createdAt, deliveredAt) {
   // Convert Firestore Timestamp to Date
   let startDate;
   try {
-    // If it's a Firestore Timestamp
     if (createdAt.toDate && typeof createdAt.toDate === 'function') {
       startDate = createdAt.toDate();
     }
-    // If it's a server timestamp object
     else if (createdAt.seconds !== undefined) {
       startDate = new Date(createdAt.seconds * 1000 + (createdAt.nanoseconds || 0) / 1000000);
     }
-    // If it's already a Date object
     else if (createdAt instanceof Date) {
       startDate = createdAt;
     }
-    // If it's a date string
     else if (typeof createdAt === 'string') {
       startDate = new Date(createdAt);
     }
-    // If it's a number (timestamp)
     else if (typeof createdAt === 'number') {
       startDate = new Date(createdAt);
     }
@@ -124,7 +119,6 @@ function renderTimer(createdAt, deliveredAt) {
   function update() {
     try {
       const now = Date.now();
-      // Only update every 100ms to improve performance
       if (now - lastUpdate < 100) {
         requestAnimationFrame(update);
         return;
@@ -304,22 +298,12 @@ function listenOrder(userId) {
   window.addEventListener('beforeunload', () => unsubscribe());
 }
 
-// Function to get base URL for GitHub Pages
-function getBaseUrl() {
-    const pathSegments = window.location.pathname.split('/');
-    // If we're on GitHub Pages, the first segment after the domain will be the repo name
-    const repoName = pathSegments[1];
-    return window.location.hostname === 'localhost' ? '' : `/${repoName}`;
-}
-
 function init() {
-    auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-            window.location.href = getBaseUrl() + '/';
-            return;
-        }
-        listenOrder(user.uid);
-    });
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      listenOrder(user.uid);
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);

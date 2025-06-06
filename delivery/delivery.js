@@ -1,5 +1,5 @@
 import { auth, db } from '../firebase.js';
-import { doc, onSnapshot, getDoc, collection, query, where, orderBy, limit, setDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { doc, onSnapshot, collection, query, where, orderBy, limit, setDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
 function renderStatus(status) {
   const statusInfo = document.getElementById('status-info');
@@ -53,12 +53,9 @@ function getStatusBadgeText(status) {
 function renderTimer(createdAt, deliveredAt) {
   const timerInfo = document.getElementById('timer-info');
   if (!createdAt) {
-    console.log('No createdAt timestamp provided');
     timerInfo.textContent = '';
     return;
   }
-
-  console.log('Raw createdAt:', createdAt);
   
   // Convert Firestore Timestamp to Date
   let startDate;
@@ -87,14 +84,11 @@ function renderTimer(createdAt, deliveredAt) {
       throw new Error('Unsupported date format');
     }
     
-    console.log('Converted startDate:', startDate);
-    
     if (isNaN(startDate.getTime())) {
       throw new Error('Invalid date after conversion');
     }
   } catch (error) {
-    console.error('Error converting start date:', error);
-    timerInfo.textContent = 'Erro ao calcular tempo';
+    timerInfo.textContent = '';
     return;
   }
 
@@ -118,14 +112,10 @@ function renderTimer(createdAt, deliveredAt) {
         endDate = new Date(deliveredAt);
       }
       
-      console.log('Converted endDate:', endDate);
-      
       if (isNaN(endDate.getTime())) {
-        console.warn('Invalid end date after conversion, ignoring deliveredAt');
         endDate = null;
       }
     } catch (error) {
-      console.warn('Error converting end date, ignoring deliveredAt:', error);
       endDate = null;
     }
   }
@@ -158,8 +148,7 @@ function renderTimer(createdAt, deliveredAt) {
         requestAnimationFrame(update);
       }
     } catch (error) {
-      console.error('Error updating timer:', error);
-      timerInfo.textContent = 'Erro ao atualizar tempo';
+      timerInfo.textContent = '';
     }
   }
   
@@ -169,7 +158,7 @@ function renderTimer(createdAt, deliveredAt) {
 function renderOrderInfo(order) {
   const orderInfo = document.getElementById('order-info');
   if (!order || !order.items || order.items.length === 0) {
-    orderInfo.innerHTML = '<p>Nenhum item no pedido.</p>';
+    orderInfo.innerHTML = '<p>Nenhum pedido encontrado.</p>';
     return;
   }
 
@@ -249,7 +238,6 @@ function listenOrder(userId) {
     collection(db, "orders"),
     where("userId", "==", userId),
     where("type", "==", "delivery"),
-    where("status", "not-in", ["delivered", "cancelled"]),
     orderBy("createdAt", "desc"),
     limit(1)
   );
@@ -258,20 +246,18 @@ function listenOrder(userId) {
     next: (snapshot) => {
       try {
         if (snapshot.empty) {
-          console.log('No active delivery orders found for user:', userId);
           document.getElementById('status-info').innerHTML = `
             <i class="fas fa-exclamation-circle"></i>
             Nenhum pedido encontrado.
           `;
           document.getElementById('timer-info').textContent = '';
-          document.getElementById('order-info').innerHTML = '<p>Nenhum pedido ativo.</p>';
+          document.getElementById('order-info').innerHTML = '<p>Nenhum pedido encontrado.</p>';
           document.getElementById('contact-info').textContent = '';
           return;
         }
         
         const orderDoc = snapshot.docs[0];
         const order = orderDoc.data();
-        console.log('Latest order data:', order);
         
         // Update UI with order status
         renderStatus(order.status);
@@ -307,18 +293,10 @@ function listenOrder(userId) {
         }
       } catch (error) {
         console.error('Error processing order data:', error);
-        document.getElementById('status-info').innerHTML = `
-          <i class="fas fa-exclamation-circle"></i>
-          Erro ao carregar dados do pedido. Por favor, atualize a página.
-        `;
       }
     },
     error: (error) => {
       console.error('Error listening to order updates:', error);
-      document.getElementById('status-info').innerHTML = `
-        <i class="fas fa-exclamation-circle"></i>
-        Erro ao monitorar atualizações do pedido. Por favor, atualize a página.
-      `;
     }
   });
   
@@ -334,111 +312,13 @@ function getBaseUrl() {
     return window.location.hostname === 'localhost' ? '' : `/${repoName}`;
 }
 
-// Função para verificar se o usuário está logado e tem um pedido ativo
-async function checkUserAndOrder() {
-    const user = auth.currentUser;
-    
-    if (!user) {
-        // Se não estiver logado
-        showMessage("Por favor faça login e um pedido para acessar a página de delivery", true);
-        return false;
-    }
-
-    // Verifica se existe um pedido ativo
-    try {
-        const ordersRef = collection(db, "orders");
-        const q = query(
-            ordersRef,
-            where("userId", "==", user.uid),
-            where("type", "==", "delivery"),
-            where("status", "not-in", ["delivered", "cancelled"]),
-            orderBy("createdAt", "desc"),
-            limit(1)
-        );
-
-        const querySnapshot = await getDocs(q);
-        
-        if (querySnapshot.empty) {
-            // Se não houver pedido ativo
-            showMessage("Por favor faça um pedido para acessar a página de delivery", false);
-            return false;
-        }
-
-        // Se encontrou um pedido ativo, mostra o conteúdo principal
-        const mainContent = document.querySelector('.delivery-status-main');
-        if (mainContent) {
-            mainContent.style.display = 'block';
-        }
-        
-        // Remove a mensagem se ela existir
-        const messageContainer = document.querySelector('.message-container');
-        if (messageContainer) {
-            messageContainer.remove();
-        }
-
-        return true;
-    } catch (error) {
-        console.error("Erro ao verificar pedido:", error);
-        showMessage("Erro ao verificar status do pedido", true);
-        return false;
-    }
-}
-
-// Função para mostrar mensagem
-function showMessage(message, isError) {
-    // Esconde o conteúdo principal
-    const mainContent = document.querySelector('.delivery-status-main');
-    if (mainContent) {
-        mainContent.style.display = 'none';
-        mainContent.insertAdjacentHTML('beforebegin', `
-            <div class="message-container" style="
-                text-align: center;
-                padding: 40px 20px;
-                background: ${isError ? 'rgba(255,0,0,0.1)' : 'rgba(0,0,0,0.1)'};
-                border-radius: 10px;
-                margin: 20px;
-            ">
-                <i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-info-circle'}" style="
-                    font-size: 48px;
-                    color: ${isError ? '#ff4444' : '#d4a373'};
-                    margin-bottom: 20px;
-                    display: block;
-                "></i>
-                <h2 style="
-                    color: #ffffff;
-                    margin-bottom: 10px;
-                ">Antes de entrar nesta página</h2>
-                <p style="
-                    color: #ffffff;
-                    opacity: 0.8;
-                ">${message}</p>
-                <button onclick="window.location.href='${getBaseUrl()}/menu/menu.html'" style="
-                    margin-top: 20px;
-                    padding: 10px 20px;
-                    background: #d4a373;
-                    border: none;
-                    border-radius: 5px;
-                    color: white;
-                    cursor: pointer;
-                ">Ir para o Menu</button>
-            </div>
-        `);
-    }
-}
-
 function init() {
     auth.onAuthStateChanged(async (user) => {
         if (!user) {
-            console.log('User not authenticated, redirecting to index');
             window.location.href = getBaseUrl() + '/';
             return;
         }
-        
-        const hasAccess = await checkUserAndOrder();
-        if (hasAccess) {
-            console.log('User authenticated and has active order, starting order listener');
-            listenOrder(user.uid);
-        }
+        listenOrder(user.uid);
     });
 }
 

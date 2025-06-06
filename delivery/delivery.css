@@ -1,0 +1,114 @@
+.delivery-status-main {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #1a1a1a;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.status-container {
+    background: #272727;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.info-box {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#timer-info {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.order-details, .contact-info {
+    background: #272727;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+h2 {
+    color: #d4a373;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+#order-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+#order-info li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+}
+
+#order-info li:last-child {
+    border-bottom: none;
+}
+
+#contact-info {
+    color: #ffffff;
+}
+
+#contact-info div {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#contact-info i {
+    color: #d4a373;
+    width: 20px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.status-badge.pending { background: #ffd700; color: #000; }
+.status-badge.accepted { background: #87ceeb; color: #000; }
+.status-badge.preparing { background: #ff8c00; color: #fff; }
+.status-badge.sent { background: #4169e1; color: #fff; }
+.status-badge.delivered { background: #32cd32; color: #fff; }
+
+@media (max-width: 800px) {
+    .delivery-status-main {
+        margin: 20px 10px;
+        padding: 20px;
+    }
+
+    .status-container, .order-details, .contact-info {
+        padding: 20px;
+    }
+
+    .info-box {
+        font-size: 1.2rem;
+    }
+}

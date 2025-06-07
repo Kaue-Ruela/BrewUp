@@ -7,7 +7,8 @@ import {
     sendPasswordResetEmail,
     signOut,
     onAuthStateChanged,
-    updateProfile
+    updateProfile,
+    fetchSignInMethodsForEmail
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     getFirestore,
@@ -89,7 +90,7 @@ export const loginUser = async (email, password) => {
 export const registerUser = async (email, password, displayName) => {
     try {
         // Check if email already exists
-        const methods = await auth.fetchSignInMethodsForEmail(email);
+        const methods = await fetchSignInMethodsForEmail(auth, email);
         if (methods && methods.length > 0) {
             throw new Error('Usuário ou email já cadastrado');
         }
@@ -112,6 +113,7 @@ export const registerUser = async (email, password, displayName) => {
 
         return user;
     } catch (error) {
+        console.error('Registration error:', error);
         if (error.code === 'auth/email-already-in-use') {
             throw new Error('Usuário ou email já cadastrado');
         }
